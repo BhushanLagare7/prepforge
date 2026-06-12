@@ -1,5 +1,7 @@
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 const HomePage = () => {
   return (
     <>
@@ -9,6 +11,7 @@ const HomePage = () => {
       <Show when="signed-in">
         <UserButton />
       </Show>
+      <ThemeToggle />
     </>
   );
 };
