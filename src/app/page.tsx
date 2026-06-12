@@ -1,10 +1,14 @@
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
 const HomePage = () => {
   return (
     <>
-      <SignInButton />
-      <UserButton />
+      <Show when="signed-out">
+        <SignInButton />
+      </Show>
+      <Show when="signed-in">
+        <UserButton />
+      </Show>
     </>
   );
 };
