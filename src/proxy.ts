@@ -6,7 +6,6 @@ import { env } from "./data/env/server";
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/"]);
 
 const aj = arcjet({
-  // TODO: Add type-safety for env vars
   key: env.ARCJET_KEY,
   rules: [
     shield({ mode: "LIVE" }),
@@ -19,9 +18,9 @@ const aj = arcjet({
 });
 
 export default clerkMiddleware(async (auth, req) => {
-  const descision = await aj.protect(req);
+  const decision = await aj.protect(req);
 
-  if (descision.isDenied()) {
+  if (decision.isDenied()) {
     return new Response(null, { status: 403 });
   }
 
@@ -33,9 +32,9 @@ export default clerkMiddleware(async (auth, req) => {
 export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    "/((?!_next|api/webhooks|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes (except webhooks)
+    "/(api(?!/webhooks)|trpc)(.*)",
     // Always run for Clerk-specific frontend API routes
     "/__clerk/(.*)",
   ],
