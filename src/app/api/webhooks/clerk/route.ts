@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     switch (event.type) {
       case "user.created":
-      case "user.updated":
+      case "user.updated": {
         const clerkData = event.data;
         const email = clerkData.email_addresses.find(
           (e) => e.id === clerkData.primary_email_address_id,
@@ -33,17 +33,32 @@ export async function POST(request: NextRequest) {
         });
 
         break;
-      case "user.deleted":
+      }
+      case "user.deleted": {
         if (event.data.id == null) {
           return new Response("No user ID found", { status: 400 });
         }
 
         await deleteUser(event.data.id);
         break;
+      }
     }
   } catch (error) {
     console.error("Webhook error:", error);
-    return new Response("Invalid webhook", { status: 400 });
+    
+    // Differentiate between validation errors and internal errors
+    const isValidation =
+      error instanceof Error &&
+      (error.message.toLowerCase().includes("webhook") ||
+       error.message.toLowerCase().includes("sign") ||
+       error.message.toLowerCase().includes("svix") ||
+       error.name === "WebhookVerificationError");
+
+    if (isValidation) {
+      return new Response("Invalid webhook", { status: 400 });
+    }
+    
+    return new Response("Internal server error", { status: 500 });
   }
 
   return new Response("Webhook received", { status: 200 });
