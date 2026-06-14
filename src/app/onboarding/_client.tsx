@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { LoaderIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 
 import { getUser } from "@/features/users/actions";
 
@@ -28,5 +28,5 @@ export const OnboardingClient = ({ userId }: OnboardingClientProps) => {
     };
   }, [userId, router]);
 
-  return <LoaderIcon className="animate-spin size-24" />;
+  return <Loader2Icon className="animate-spin size-24" />;
 };

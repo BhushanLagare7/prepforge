@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 import { getGlobalTag, getIdTag, getUserTag } from "@/lib/data-cache";
 
@@ -21,7 +21,7 @@ export function revalidateJobInfoCache({
   id: string;
   userId: string;
 }) {
-  revalidateTag(getJobInfoGlobalTag(), "max");
-  revalidateTag(getJobInfoUserTag(userId), "max");
-  revalidateTag(getJobInfoIdTag(id), "max");
+  updateTag(getJobInfoGlobalTag());
+  updateTag(getJobInfoUserTag(userId));
+  updateTag(getJobInfoIdTag(id));
 }
