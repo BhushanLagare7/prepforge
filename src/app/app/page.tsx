@@ -7,6 +7,7 @@ import { LoaderIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/drizzle/db";
 import { JobInfoTable } from "@/drizzle/schema";
+import { JobInfoForm } from "@/features/job-infos/components/job-info-form";
 import { getJobInfoUserTag } from "@/features/job-infos/db-cache";
 import { getCurrentUser } from "@/services/clerk/lib/get-current-user";
 
@@ -51,7 +52,9 @@ function NoJobInfos() {
         test interviews will be to the real thing.
       </p>
       <Card>
-        <CardContent>JobInfoForm</CardContent>
+        <CardContent>
+          <JobInfoForm />
+        </CardContent>
       </Card>
     </div>
   );

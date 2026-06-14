@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@/services/clerk/components/clerk-provider";
 
@@ -35,7 +36,10 @@ export default function RootLayout({
           disableTransitionOnChange
           enableColorScheme
         >
-          <ClerkProvider>{children}</ClerkProvider>
+          <ClerkProvider>
+            {children}
+            <Toaster />
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>
