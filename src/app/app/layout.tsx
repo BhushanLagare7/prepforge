@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/services/clerk/lib/get-current-user";
 
+import { Navbar } from "./_navbar";
+
 interface AppLayoutProps {
   children: React.ReactNode;
 }
@@ -12,7 +14,12 @@ const AppLayout = async ({ children }: AppLayoutProps) => {
   if (userId == null) return redirect("/");
   if (user == null) return redirect("/onboarding");
 
-  return <>{children}</>;
+  return (
+    <>
+      <Navbar user={user} />
+      {children}
+    </>
+  );
 };
 
 export default AppLayout;
