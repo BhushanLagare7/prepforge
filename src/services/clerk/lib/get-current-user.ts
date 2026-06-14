@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/drizzle/db";
 import { UserTable } from "@/drizzle/schema";
-import { getUserIdTag } from "@/features/users/dbCache";
+import { getUserIdTag } from "@/features/users/db-cache";
 
 export async function getCurrentUser({ allData = false } = {}) {
   const { userId, redirectToSignIn } = await auth();

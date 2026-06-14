@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/drizzle/db";
 import { UserTable } from "@/drizzle/schema";
 
-import { getUserIdTag } from "./dbCache";
+import { getUserIdTag } from "./db-cache";
 
 export async function getUser(id: string) {
   "use cache";
