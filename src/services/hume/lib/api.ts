@@ -2,7 +2,7 @@ import { Hume, HumeClient } from "hume";
 
 import { env } from "@/data/env/server";
 
-export async function fetchChatMessages(humeChatId: string) {
+export const fetchChatMessages = async (humeChatId: string) => {
   "use cache";
 
   const client = new HumeClient({ apiKey: env.HUME_API_KEY });
@@ -17,4 +17,4 @@ export async function fetchChatMessages(humeChatId: string) {
   }
 
   return allChatEvents;
-}
+};
