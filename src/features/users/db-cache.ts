@@ -11,6 +11,6 @@ export function getUserIdTag(id: string) {
 }
 
 export function revalidateUserCache(id: string) {
-  revalidateTag(getUserGlobalTag(), "max");
-  revalidateTag(getUserIdTag(id), "max");
+  revalidateTag(getUserGlobalTag(), { expire: 0 });
+  revalidateTag(getUserIdTag(id), { expire: 0 });
 }

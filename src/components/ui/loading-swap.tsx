@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { LoaderIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ export function LoadingSwap({
           className,
         )}
       >
-        <LoaderIcon className="animate-spin" />
+        <Loader2Icon className="animate-spin" />
       </div>
     </div>
   );
