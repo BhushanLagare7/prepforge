@@ -1,3 +1,5 @@
+@layer theme, base, vendor, components, utilities;
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -218,5 +220,14 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+.custom-pricing-table.cl-pricingTableCard__pro {
+  @apply overflow-visible relative py-9 my-0 border-primary/50;
+
+  &::before {
+    content: "Most Popular";
+    @apply absolute top-0 left-1/2 px-4 py-1 text-sm rounded-full -translate-1/2 text-primary-foreground bg-primary;
   }
 }
