@@ -45,19 +45,19 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error("Webhook error:", error);
-    
+
     // Differentiate between validation errors and internal errors
     const isValidation =
       error instanceof Error &&
       (error.message.toLowerCase().includes("webhook") ||
-       error.message.toLowerCase().includes("sign") ||
-       error.message.toLowerCase().includes("svix") ||
-       error.name === "WebhookVerificationError");
+        error.message.toLowerCase().includes("sign") ||
+        error.message.toLowerCase().includes("svix") ||
+        error.name === "WebhookVerificationError");
 
     if (isValidation) {
       return new Response("Invalid webhook", { status: 400 });
     }
-    
+
     return new Response("Internal server error", { status: 500 });
   }
 
