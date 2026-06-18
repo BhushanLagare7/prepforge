@@ -44,7 +44,10 @@ import {
 } from "@/drizzle/schema";
 import { getJobInfoIdTag } from "@/features/job-infos/db-cache";
 import { insertQuestion } from "@/features/questions/db";
-import { getQuestionJobInfoTag } from "@/features/questions/db-cache";
+import {
+  getQuestionJobInfoTag,
+  revalidateQuestionCache,
+} from "@/features/questions/db-cache";
 import { canCreateQuestion } from "@/features/questions/permissions";
 import { PLAN_LIMIT_MESSAGE } from "@/lib/error-toast";
 import { generateAiQuestion } from "@/services/ai/questions";
@@ -95,28 +98,43 @@ export const POST = async (req: Request) => {
 
   // v6: `generateAiQuestion` is async (returns Promise<StreamTextResult>),
   // so we must `await` before calling `.toTextStreamResponse()`.
-  const res = await generateAiQuestion({
-    previousQuestions,
-    jobInfo,
-    difficulty,
-    onFinish: async (question) => {
-      // Update the pre-created record with the fully generated question text.
-      await db
-        .update(QuestionTable)
-        .set({ text: question })
-        .where(eq(QuestionTable.id, questionId));
-    },
-  });
+  try {
+    const res = await generateAiQuestion({
+      previousQuestions,
+      jobInfo,
+      difficulty,
+      onFinish: async (question) => {
+        // Update the pre-created record with the fully generated question text.
+        await db
+          .update(QuestionTable)
+          .set({ text: question })
+          .where(eq(QuestionTable.id, questionId));
 
-  // v6: `toTextStreamResponse()` replaces `toDataStreamResponse()`.
-  // Custom data (questionId) is sent via a response header since data
-  // stream side-channels no longer exist. The client reads this with
-  // a custom `fetch` wrapper in useCompletion.
-  return res.toTextStreamResponse({
-    headers: {
-      "X-Question-Id": questionId,
-    },
-  });
+        revalidateQuestionCache({
+          id: questionId,
+          jobInfoId,
+        });
+      },
+    });
+
+    // v6: `toTextStreamResponse()` replaces `toDataStreamResponse()`.
+    // Custom data (questionId) is sent via a response header since data
+    // stream side-channels no longer exist. The client reads this with
+    // a custom `fetch` wrapper in useCompletion.
+    return res.toTextStreamResponse({
+      headers: {
+        "X-Question-Id": questionId,
+      },
+    });
+  } catch {
+    // In case question fails to generate, remove the pre-created record
+    await db.delete(QuestionTable).where(eq(QuestionTable.id, questionId));
+    revalidateQuestionCache({
+      id: questionId,
+      jobInfoId,
+    });
+    return new Response("Error generating question", { status: 500 });
+  }
 };
 
 const getQuestions = async (jobInfoId: string) => {

@@ -121,7 +121,7 @@ export const NewQuestionClientPage = ({
   });
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full mx-w-[2000px] mx-auto grow h-screen-header">
+    <div className="flex flex-col items-center gap-4 w-full max-w-[2000px] mx-auto grow h-screen-header">
       <div className="container flex gap-4 justify-between items-center mt-4">
         <div className="grow basis-0">
           <BackLink href={`/app/job-infos/${jobInfo.id}`}>
