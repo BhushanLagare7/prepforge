@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 import { ClerkProvider as OriginalClerkProvider } from "@clerk/nextjs";
+import { ui } from "@clerk/ui";
 
 import { buttonVariants } from "@/components/ui/button";
 
@@ -48,6 +49,7 @@ export function ClerkProvider({ children }: { children: ReactNode }) {
           pricingTableCardFooterButton: buttonVariants(),
         },
       }}
+      ui={ui}
     >
       {children}
     </OriginalClerkProvider>
