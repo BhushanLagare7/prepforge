@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/services/clerk/lib/get-current-user";
 
 import { Navbar } from "./_navbar";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 interface AppLayoutProps {
   children: React.ReactNode;
