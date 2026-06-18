@@ -33,11 +33,18 @@ import { cn } from "@/lib/utils";
 import { aiAnalyzeSchema } from "@/services/ai/resumes/schemas";
 
 interface ResumePageClientProps {
+  /** The ID of the job posting to analyze the resume against */
   jobInfoId: string;
 }
 
+/**
+ * Client-side resume upload and analysis page.
+ * Handles file upload via drag-and-drop or file picker, then streams
+ * AI-generated analysis results using the job posting as context.
+ */
 export const ResumePageClient = ({ jobInfoId }: ResumePageClientProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
+  // Stored as a ref to avoid re-renders and to be accessible during form submission
   const fileRef = useRef<File | null>(null);
 
   const {
@@ -47,9 +54,13 @@ export const ResumePageClient = ({ jobInfoId }: ResumePageClientProps) => {
   } = useObject({
     api: "/api/ai/resumes/analyze",
     schema: aiAnalyzeSchema,
+    /**
+     * Custom fetch to send the resume file and job ID as multipart form data,
+     * since the default JSON body cannot carry binary file content.
+     */
     fetch: (url, options) => {
       const headers = new Headers(options?.headers);
-      headers.delete("Content-Type");
+      headers.delete("Content-Type"); // Let the browser set the correct multipart boundary
 
       const formData = new FormData();
       if (fileRef.current) {
@@ -61,6 +72,10 @@ export const ResumePageClient = ({ jobInfoId }: ResumePageClientProps) => {
     },
   });
 
+  /**
+   * Validates the selected file and triggers AI analysis.
+   * Rejects files that exceed 10MB or are not PDF, Word, or plain text.
+   */
   function handleFileUpload(file: File | null) {
     fileRef.current = file;
     if (file == null) return;
@@ -99,6 +114,7 @@ export const ResumePageClient = ({ jobInfoId }: ResumePageClientProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Hides the upload zone while analysis is in progress */}
           <LoadingSwap isLoading={isLoading} loadingIconClassName="size-16">
             <div
               className={cn(
@@ -124,6 +140,7 @@ export const ResumePageClient = ({ jobInfoId }: ResumePageClientProps) => {
               <label className="sr-only" htmlFor="resume-upload">
                 Upload your resume
               </label>
+              {/* Invisible full-area input layered over the drop zone */}
               <input
                 accept=".pdf,.doc,.docx,.txt"
                 className="absolute inset-0 opacity-0 cursor-pointer"
@@ -154,16 +171,24 @@ export const ResumePageClient = ({ jobInfoId }: ResumePageClientProps) => {
   );
 };
 
+/** All top-level keys of the analysis schema except the scalar `overallScore` */
 type Keys = Exclude<keyof z.infer<typeof aiAnalyzeSchema>, "overallScore">;
 
 interface AnalysisResultsProps {
+  /** Partially streamed AI analysis object; `undefined` before the first chunk arrives */
   aiAnalysis: DeepPartial<z.infer<typeof aiAnalyzeSchema>> | undefined;
   isLoading: boolean;
 }
 
+/**
+ * Renders the streamed AI analysis as an accordion.
+ * Shows skeleton placeholders for data that has not yet streamed in.
+ * Returns `null` when analysis has not been initiated.
+ */
 const AnalysisResults = ({ aiAnalysis, isLoading }: AnalysisResultsProps) => {
   if (!isLoading && aiAnalysis == null) return null;
 
+  /** Human-readable labels for each analysis category */
   const sections: Record<Keys, string> = {
     ats: "ATS Compatibility",
     jobMatch: "Job Match",
@@ -237,9 +262,16 @@ const AnalysisResults = ({ aiAnalysis, isLoading }: AnalysisResultsProps) => {
 
 interface CategoryAccordionHeaderProps {
   title: string;
+  /** Score out of 10; `null` or `undefined` while the value is still streaming */
   score: number | undefined | null;
 }
 
+/**
+ * Accordion header that displays the category title, a score badge,
+ * and the numeric score. Renders skeleton placeholders until the score arrives.
+ *
+ * Badge thresholds: ≥8 → Excellent, ≥6 → Ok, <6 → Needs Work.
+ */
 const CategoryAccordionHeader = ({
   title,
   score,
@@ -252,7 +284,7 @@ const CategoryAccordionHeader = ({
   } else if (score >= 6) {
     badge = <Badge variant="warning">Ok</Badge>;
   } else {
-    badge = <Badge variant="destructive">Needs Works</Badge>;
+    badge = <Badge variant="destructive">Needs Work</Badge>;
   }
 
   return (
@@ -266,6 +298,13 @@ const CategoryAccordionHeader = ({
   );
 };
 
+/**
+ * Displays a single feedback point with a colored background and icon
+ * that reflects its type:
+ * - `strength` → green / check icon
+ * - `minor-improvement` → yellow / alert icon
+ * - `major-improvement` → red / X icon
+ */
 const FeedbackItem = ({
   message,
   name,

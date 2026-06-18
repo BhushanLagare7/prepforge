@@ -12,6 +12,10 @@ interface ResumePageProps {
   params: Promise<{ jobInfoId: string }>;
 }
 
+/**
+ * Main entry point for the Resume Analysis page.
+ * Uses a Suspense boundary to handle the async permission check.
+ */
 const ResumePage = async ({ params }: ResumePageProps) => {
   const { jobInfoId } = await params;
 
@@ -31,7 +35,12 @@ interface SuspendedComponentProps {
   jobInfoId: string;
 }
 
+/**
+ * Handles server-side authorization and feature gating
+ * before rendering the client-side analysis interface.
+ */
 const SuspendedComponent = async ({ jobInfoId }: SuspendedComponentProps) => {
+  // Gate access based on user subscription/permissions
   if (!(await canRunResumeAnalysis())) return redirect("/app/upgrade");
 
   return <ResumePageClient jobInfoId={jobInfoId} />;

@@ -6,6 +6,10 @@ import { google } from "../models/google";
 
 import { aiAnalyzeSchema } from "./schemas";
 
+/**
+ * Analyzes a resume file against a specific job description using AI.
+ * Returns a stream of structured feedback including ATS, job match, and keyword analysis.
+ */
 export const analyzeResumeForJob = async ({
   resumeFile,
   jobInfo,

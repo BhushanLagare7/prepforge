@@ -10,6 +10,10 @@ import { PLAN_LIMIT_MESSAGE } from "@/lib/error-toast";
 import { analyzeResumeForJob } from "@/services/ai/resumes/ai";
 import { getCurrentUser } from "@/services/clerk/lib/get-current-user";
 
+/**
+ * API Route: Streams AI-generated resume analysis for a specific job.
+ * Validates authentication, file requirements, ownership, and plan limits.
+ */
 export const POST = async (req: Request) => {
   const { userId } = await getCurrentUser();
 
@@ -21,6 +25,7 @@ export const POST = async (req: Request) => {
   const resumeFile = formData.get("resumeFile") as File;
   const jobInfoId = formData.get("jobInfoId") as string;
 
+  // Validate payload and file constraints (Max 10MB, specific document types)
   if (!resumeFile || !jobInfoId) {
     return new Response("Invalid request", { status: 400 });
   }
@@ -42,6 +47,7 @@ export const POST = async (req: Request) => {
     });
   }
 
+  // Ensure user owns the job info and has sufficient plan limits
   const jobInfo = await getJobInfo(jobInfoId, userId);
   if (jobInfo == null) {
     return new Response("You do not have permission to do this", {
@@ -53,6 +59,7 @@ export const POST = async (req: Request) => {
     return new Response(PLAN_LIMIT_MESSAGE, { status: 403 });
   }
 
+  // Generate and stream the AI analysis response
   const res = await analyzeResumeForJob({
     resumeFile,
     jobInfo,
@@ -61,6 +68,9 @@ export const POST = async (req: Request) => {
   return res.toTextStreamResponse();
 };
 
+/**
+ * Retrieves and caches the target job information, scoped to the current user.
+ */
 const getJobInfo = async (id: string, userId: string) => {
   "use cache";
   cacheTag(getJobInfoIdTag(id));
